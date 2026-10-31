@@ -16,7 +16,7 @@ This is an independent project and is not affiliated with, endorsed by, or licen
 
 No firmware is included. The plugin runs the original TX81Z firmware, which is Yamaha’s copyrighted software and cannot be redistributed with this project.
 
-![Project screenshot](t3x.jpg)
+![Project screenshot](t.jpg)
 
 ## Supplying the ROM
 
