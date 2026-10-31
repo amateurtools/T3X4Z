@@ -1,6 +1,6 @@
 # T3X4Z
 
-First README draft — 31 October 2026
+version 0.1, still things to do.
 
 T3X4Z is pronounced “TEXAS.”
 
