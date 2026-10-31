@@ -26,10 +26,14 @@ Load the ROM from the plugin, set the `TX81Z_ROM` environment variable, or place
 
 The plugin remembers the ROM path. If you move the ROM, the plugin will not start until you locate it again. (As of 31 October 2026.)
 
+At present, it seems that the path is saved per instance, that is a to-do but it should be sorted out soon.
+
+This project was vibecoded with Claude.ai to specifications crafted by The Actual Culprit: Amateurtools DSP.
+
 ## Credits
 
-This project was vibecoded by Claude.ai to specifications crafted by The Actual Culprit: Amateurtools DSP.
-
+- FM: https://en.wikipedia.org/wiki/John_Chowning
+- Inspiration: Yamaha
 - YMFM: https://github.com/aaronsgiles/ymfm/blob/main/LICENSE — BSD-3, Aaron Giles
 - MAME memory map: `ymtx81z.cpp` — BSD-3, AJR
 - Claude: Vibe
