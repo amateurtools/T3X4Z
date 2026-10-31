@@ -12,15 +12,19 @@ if(APPLE)
 endif()
 
 juce_add_plugin(${T3X4Z_PLUGIN}
-    COMPANY_NAME "AmateurTools"
+    COMPANY_NAME "JG"
     PRODUCT_NAME "${T3X4Z_PRODUCT_NAME}"
-    PLUGIN_MANUFACTURER_CODE AmAt
-    PLUGIN_CODE T3xZ
+    PLUGIN_MANUFACTURER_CODE JGaa
+    PLUGIN_CODE Tx81
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     NEEDS_MIDI_OUTPUT TRUE
     FORMATS ${T3X4Z_FORMATS}
     COPY_PLUGIN_AFTER_BUILD ${T3X4Z_INSTALL_AFTER_BUILD})
+
+# Embedded UI font: Comic Neue Regular (SIL Open Font License 1.1; keep third_party/Comic_Neue/OFL.txt with it).
+juce_add_binary_data(T3X4ZAssets SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/Comic_Neue/ComicNeue-Regular.ttf)
+set_target_properties(T3X4ZAssets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_sources(${T3X4Z_PLUGIN} PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp)
 
@@ -33,6 +37,7 @@ target_compile_definitions(${T3X4Z_PLUGIN} PUBLIC
 target_link_libraries(${T3X4Z_PLUGIN}
     PRIVATE
         tx81z_core
+        T3X4ZAssets
         juce::juce_audio_utils
         juce::juce_audio_processors
         juce::juce_gui_basics
@@ -51,7 +56,7 @@ if(T3X4Z_BUILD_TESTS)
     juce_add_console_app(ProcessorTest PRODUCT_NAME "ProcessorTest")
     target_sources(ProcessorTest PRIVATE Test/ProcessorTest.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
     target_compile_definitions(ProcessorTest PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_STANDALONE_APPLICATION=1)
-    target_link_libraries(ProcessorTest PRIVATE tx81z_core
+    target_link_libraries(ProcessorTest PRIVATE tx81z_core T3X4ZAssets
         juce::juce_audio_formats juce::juce_audio_utils juce::juce_audio_processors juce::juce_gui_basics
         juce::juce_recommended_config_flags)
 endif()
