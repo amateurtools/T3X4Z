@@ -10,6 +10,8 @@ T3X4Z is pronounced “TEXAS.”
 
 T3X4Z emulates the hardware inside a Yamaha TX81Z-class FM synthesizer: an HD6303X CPU, a YM2414 sound chip, an LCD, and a mostly dissimilar front panel.
 
+There are other emulations but they seem to rely on MAME's processor engine, while T3X4Z does not.
+
 This is an independent project and is not affiliated with, endorsed by, or licensed by Yamaha. “TX81Z” and “Yamaha” are trademarks of their owner and are used here only to describe compatibility.
 
 No firmware is included. The plugin runs the original TX81Z firmware, which is Yamaha’s copyrighted software and cannot be redistributed with this project.
@@ -37,7 +39,7 @@ This project was vibecoded with Claude.ai to specifications crafted by The Actua
 - YMFM: https://github.com/aaronsgiles/ymfm/blob/main/LICENSE — BSD-3, Aaron Giles
 - MAME memory map: `ymtx81z.cpp` — BSD-3, AJR
 - Claude: Vibe
-- AmateurTools: Concept
+- AmateurTools: Intent
 
 YMFM and the MAME memory map are incorporated under BSD-3 terms. Their copyright notices and license text must remain with the source.
 
