@@ -1,6 +1,6 @@
 # T3X4Z
 
-version 0.1, still things to do.
+version 0.2, almost perfect.
 
 T3X4Z is pronounced “TEXAS.”
 
