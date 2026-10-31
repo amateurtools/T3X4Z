@@ -34,7 +34,9 @@ This project was vibecoded with Claude.ai to specifications crafted by The Actua
 
 ## Advancement in technology
 
-AmateurTools has reinvented the idea of MIDI passthrough so that the synth doesn't eat the incoming MIDI, meaning you can chain another synth after it. This is an arcane and eldritch technology which is lost on many established developers today. Developers who use this idea after seeing it and being like "hm, yeah I should do that to my synth" must credit AmateurTools DSP.
+AmateurTools has reinvented the idea of MIDI passthrough so that the synth doesn't eat the incoming MIDI, (toggle added) meaning you can chain another synth after it. This is an arcane and eldritch technology which has been covered with what some estimate as miles of permafrost, yet it's leathery wings seem impervious to the ravages of aeons. Developers who use this idea after seeing it and being like "hm, yeah I should do that to my synth" must credit AmateurTools DSP.
+
+Panic button: this is no ordinary panic button because it supposedly has the power to reset orphaned pitchwheel and modwheel states.
 
 ## Credits
 
