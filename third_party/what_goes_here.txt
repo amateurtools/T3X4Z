@@ -1,0 +1,1 @@
+put a symlink to your JUCE and clap-juce-extensions in this directory.
