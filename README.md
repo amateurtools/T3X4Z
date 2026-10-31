@@ -32,7 +32,7 @@ At present, it seems that the path is saved per instance, that is a to-do but it
 
 This project was vibecoded with Claude.ai to specifications crafted by The Actual Culprit: Amateurtools DSP.
 
-## Advancement in technology
+## Advancements in state-of-the-art technology
 
 AmateurTools has reinvented the idea of MIDI passthrough so that the synth doesn't eat the incoming MIDI, (toggle added) meaning you can chain another synth after it. This is an arcane and eldritch technology which has been covered with what some estimate as miles of permafrost, yet it's leathery wings seem impervious to the ravages of aeons. Developers who use this idea after seeing it and being like "hm, yeah I should do that to my synth" must credit AmateurTools DSP.
 
