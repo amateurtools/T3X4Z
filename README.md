@@ -4,7 +4,7 @@ version 0.2, almost perfect.
 
 T3X4Z is pronounced “TEXAS.”
 
-> 'Texas' is a trademark of Texas, USA.
+> 'Texas' is a trademark of Texas, USA. This project is not affiliated with or endorsed by Texas.
 
 ## About
 
