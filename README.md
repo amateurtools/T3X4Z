@@ -4,7 +4,7 @@ version 0.1, still things to do.
 
 T3X4Z is pronounced “TEXAS.”
 
-> Texas is, phonetically, a trademark of Texas, USA.
+> 'Texas' is a trademark of Texas, USA.
 
 ## About
 
@@ -31,6 +31,10 @@ The plugin remembers the ROM path. If you move the ROM, the plugin will not star
 At present, it seems that the path is saved per instance, that is a to-do but it should be sorted out soon.
 
 This project was vibecoded with Claude.ai to specifications crafted by The Actual Culprit: Amateurtools DSP.
+
+## Advancement in technology
+
+AmateurTools has reinvented the idea of MIDI passthrough so that the synth doesn't eat the incoming MIDI, meaning you can chain another synth after it. This is an arcane and eldred technology which is lost on many established developers today.
 
 ## Credits
 
