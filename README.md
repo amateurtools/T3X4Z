@@ -34,7 +34,7 @@ This project was vibecoded with Claude.ai to specifications crafted by The Actua
 
 ## Advancement in technology
 
-AmateurTools has reinvented the idea of MIDI passthrough so that the synth doesn't eat the incoming MIDI, meaning you can chain another synth after it. This is an arcane and eldritch technology which is lost on many established developers today.
+AmateurTools has reinvented the idea of MIDI passthrough so that the synth doesn't eat the incoming MIDI, meaning you can chain another synth after it. This is an arcane and eldritch technology which is lost on many established developers today. Developers who use this idea after seeing it and being like "hm, yeah I should do that to my synth" must credit AmateurTools DSP.
 
 ## Credits
 
