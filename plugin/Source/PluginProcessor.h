@@ -38,6 +38,7 @@ public:
     bool hasRom() const { return romLoaded.load(); }
     juce::String getRomPath() const { return romPath; }
     void setKeyMask(uint32_t m) { keyMask.store(m); }
+    void panic() { panicRequest.store(true); }   // handled on the audio thread at the next block
 
     struct LcdSnapshot { uint8_t ddram[128] {}; uint8_t cgram[64] {}; bool displayOn = true; };
     LcdSnapshot getLcd() { const juce::SpinLock::ScopedLockType l(lcdLock); return lcd; }
@@ -63,6 +64,7 @@ private:
     double hostRate = 44100.0;
 
     std::atomic<uint32_t> keyMask { 0 };
+    std::atomic<bool> panicRequest { false };
     juce::SmoothedValue<float> gainSmooth;
     juce::SpinLock lcdLock;
     LcdSnapshot lcd;

@@ -122,6 +122,39 @@ int main(int argc, char **argv)
         CHECK(t.startsWith("PLAY SINGLE"), "restored instance boots to PLAY SINGLE without re-running factory init");
     }
 
+    // MIDI thru: on (default) leaves incoming MIDI in the buffer, off consumes it
+    {
+        TX81ZProcessor q; q.setPlayConfigDetails(0, 2, sr, block); q.prepareToPlay(sr, block);
+        q.setStateInformation(state.getData(), (int)state.getSize());
+        juce::AudioBuffer<float> b(2, block);
+        auto run = [&](bool thru) {
+            q.apvts.getParameter("midiThru")->setValueNotifyingHost(thru ? 1.0f : 0.0f);
+            juce::MidiBuffer mb; mb.addEvent(juce::MidiMessage::noteOn(1, 60, (juce::uint8)100), 10);
+            q.processBlock(b, mb); for (auto m : mb) std::printf("   out event @%d: %s\n", m.samplePosition, m.getMessage().getDescription().toRawUTF8()); return mb.getNumEvents();
+        };
+        int nOn = run(true); CHECK(nOn == 1,  "MIDI thru ON: incoming note passes through (events out = %d, want 1)", nOn);
+        CHECK(run(false) == 0, "MIDI thru OFF: plugin consumes MIDI (events out = 0)");
+    }
+
+    // panic: hold a note, hit panic, sound dies and wheels return to zero
+    {
+        TX81ZProcessor q; q.setPlayConfigDetails(0, 2, sr, block); q.prepareToPlay(sr, block);
+        q.setStateInformation(state.getData(), (int)state.getSize());
+        auto a = render(q, sr, block, 1.0, { { 0.1, { 0x90, 60, 100 } }, { 0.3, { 0xE0, 0x7f, 0x7f } }, { 0.35, { 0xB0, 1, 127 } } });
+        float held = peakOf(a, (size_t)(0.6 * sr), (size_t)(1.0 * sr));
+        q.panic();
+        auto a2 = render(q, sr, block, 2.0, {});
+        float tail = peakOf(a2, (size_t)(1.5 * sr), (size_t)(2.0 * sr));
+        std::printf("panic: held-note peak %.4f, peak 1.5-2.0 s after panic %.5f\n", held, tail);
+        CHECK(held > 0.02f, "note is sounding before panic");
+        CHECK(tail < 0.001f, "panic silences the held note");
+        // a new note afterwards plays at the right pitch (pitch bend reset to centre)
+        auto a3 = render(q, sr, block, 1.5, { { 0.1, { 0x90, 60, 100 } } });
+        std::vector<float> seg3(a3.begin() + (long)(0.4 * sr), a3.begin() + (long)(1.2 * sr));
+        const double c = energyAt(seg3, sr, 261.63), hi = energyAt(seg3, sr, 277.18);
+        CHECK(c > 4.0 * hi, "after panic the pitch wheel is back at centre (C4 stays C4)");
+    }
+
     // odd host settings
     for (double rate : { 44100.0, 96000.0 }) {
         TX81ZProcessor q; q.setPlayConfigDetails(0, 2, rate, 64); q.prepareToPlay(rate, 64);
@@ -130,6 +163,13 @@ int main(int argc, char **argv)
         CHECK(peakOf(a3, (size_t)(0.3 * rate), (size_t)(1.5 * rate)) > 0.02f, "plays at %.0f Hz with 64-sample blocks", rate);
     }
 
+    if (argc > 3) {   // optional: render the editor to a PNG (ProcessorTest rom out.wav out.png)
+        std::unique_ptr<juce::AudioProcessorEditor> ed(p.createEditor());
+        ed->setBounds(0, 0, ed->getWidth(), ed->getHeight());
+        auto img = ed->createComponentSnapshot(ed->getLocalBounds(), false, 1.0f);
+        juce::File f(argv[3]); f.deleteFile(); juce::FileOutputStream os(f);
+        if (os.openedOk()) juce::PNGImageFormat().writeImageToStream(img, os);
+    }
     if (argc > 2) writeWav(argv[2], audio, (int)sr);
     std::printf("\n%s (%d failure%s)\n", failures ? "FAILED" : "ALL PASSED", failures, failures == 1 ? "" : "s");
     return failures ? 1 : 0;

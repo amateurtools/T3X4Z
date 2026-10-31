@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "LcdFont.h"
+#include <BinaryData.h>
 #include <cstring>
 
 void LcdComponent::paint(juce::Graphics &g)
@@ -35,14 +36,25 @@ void LcdComponent::paint(juce::Graphics &g)
     }
 }
 
+ComicLookAndFeel::ComicLookAndFeel()
+    : typeface(juce::Typeface::createSystemTypefaceFor(BinaryData::ComicNeueRegular_ttf, BinaryData::ComicNeueRegular_ttfSize))
+{
+}
+
 TX81ZEditor::TX81ZEditor(TX81ZProcessor &p) : AudioProcessorEditor(&p), proc(p)
 {
+    setLookAndFeel(&lnf);
+
+    brand.setText("T3X4Z", juce::dontSendNotification);
+    brand.setJustificationType(juce::Justification::bottomRight);
+    brand.setColour(juce::Label::textColourId, juce::Colour(0xffe03a3a));
+    brand.setFont(lnf.make(34.0f));
+    brand.setInterceptsMouseClicks(false, false);
+    brand.setBorderSize({});
+    addAndMakeVisible(brand);
+
     setSize(600, 380);
     addAndMakeVisible(lcd);
-
-    status.setJustificationType(juce::Justification::centredLeft);
-    status.setColour(juce::Label::textColourId, juce::Colours::lightgrey);
-    addAndMakeVisible(status);
 
     for (auto *b : { &loadRom, &powerCycleBtn, &factoryBtn }) addAndMakeVisible(*b);
     loadRom.onClick = [this] { chooseRom(); };
@@ -62,6 +74,13 @@ TX81ZEditor::TX81ZEditor(TX81ZProcessor &p) : AudioProcessorEditor(&p), proc(p)
         addAndMakeVisible(keyBtns[i]);
     }
 
+    addAndMakeVisible(panicBtn);
+    panicBtn.setColour(juce::TextButton::buttonColourId, juce::Colour(0xff8a2a2a));
+    panicBtn.onClick = [this] { proc.panic(); };
+    addAndMakeVisible(midiThruBtn);
+    midiThruBtn.setColour(juce::ToggleButton::textColourId, juce::Colours::lightgrey);
+    thruAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(proc.apvts, "midiThru", midiThruBtn);
+
     gain.setSliderStyle(juce::Slider::LinearHorizontal);
     gain.setTextBoxStyle(juce::Slider::TextBoxRight, false, 70, 22);
     gain.setTextValueSuffix(" dB");
@@ -75,7 +94,7 @@ TX81ZEditor::TX81ZEditor(TX81ZProcessor &p) : AudioProcessorEditor(&p), proc(p)
     timerCallback();
 }
 
-TX81ZEditor::~TX81ZEditor() { proc.setKeyMask(0); }
+TX81ZEditor::~TX81ZEditor() { proc.setKeyMask(0); setLookAndFeel(nullptr); }
 
 void TX81ZEditor::updateKeys()
 {
@@ -100,8 +119,6 @@ void TX81ZEditor::chooseRom()
 void TX81ZEditor::timerCallback()
 {
     lcd.setSnapshot(proc.getLcd());
-    status.setText(proc.hasRom() ? "ROM: " + juce::File(proc.getRomPath()).getFileName() : "No ROM loaded - click Load ROM...",
-                   juce::dontSendNotification);
 }
 
 void TX81ZEditor::paint(juce::Graphics &g) { g.fillAll(juce::Colour(0xff23252b)); }
@@ -112,22 +129,34 @@ void TX81ZEditor::resized()
     lcd.setBounds(r.removeFromTop(120));
     r.removeFromTop(10);
 
+    // key grid is always four columns so everything lines up
+    const int colW = (r.getWidth() - 8 * 3) / 4;
+    const int col3x = r.getX() + 2 * (colW + 8);
+
+    // top row: Load ROM / Power cycle / Factory init on the left; MIDI thru above Utility, a compact Panic above Store
     auto top = r.removeFromTop(28);
-    loadRom.setBounds(top.removeFromLeft(110)); top.removeFromLeft(8);
-    powerCycleBtn.setBounds(top.removeFromLeft(110)); top.removeFromLeft(8);
-    factoryBtn.setBounds(top.removeFromLeft(110)); top.removeFromLeft(12);
-    status.setBounds(top);
+    const int bw = 88;
+    loadRom.setBounds(top.removeFromLeft(bw)); top.removeFromLeft(8);
+    powerCycleBtn.setBounds(top.removeFromLeft(bw)); top.removeFromLeft(8);
+    factoryBtn.setBounds(top.removeFromLeft(bw));
+    panicBtn.setBounds(top.removeFromRight(colW / 2));
+    midiThruBtn.setBounds(col3x, top.getY(), colW, top.getHeight());
     r.removeFromTop(14);
 
     auto row = [&](std::initializer_list<int> ids) {
         auto line = r.removeFromTop(44);
-        int w = (line.getWidth() - 8 * ((int)ids.size() - 1)) / (int)ids.size();
-        for (int id : ids) { keyBtns[id].setBounds(line.removeFromLeft(w)); line.removeFromLeft(8); }
+        for (int id : ids) { keyBtns[id].setBounds(line.removeFromLeft(colW)); line.removeFromLeft(8); }
         r.removeFromTop(8);
     };
     row({ Engine::Play, Engine::Edit, Engine::Utility, Engine::Store });
     row({ Engine::ParamLeft, Engine::ParamRight, Engine::Dec, Engine::Inc });
     row({ Engine::VolLeft, Engine::VolRight, Engine::Cursor });
+
+    // T3X4Z label: fills the empty fourth slot of the last key row, text right- and bottom-justified
+    {
+        const auto c = keyBtns[Engine::Cursor].getBounds();
+        brand.setBounds(c.getRight() + 8, c.getY(), colW, c.getHeight());
+    }
 
     r.removeFromTop(6);
     auto gl = r.removeFromTop(28);

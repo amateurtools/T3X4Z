@@ -8,6 +8,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TX81ZProcessor::createLayout
     juce::AudioProcessorValueTreeState::ParameterLayout l;
     l.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "gain", 1 }, "Output Gain",
           juce::NormalisableRange<float>(-24.0f, 36.0f, 0.1f), 12.0f, juce::AudioParameterFloatAttributes().withLabel("dB")));
+    l.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID { "midiThru", 1 }, "MIDI Thru", true));
     return l;
 }
 
@@ -95,8 +96,13 @@ void TX81ZProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
     const int n = buffer.getNumSamples();
     buffer.clear();
 
+    // MIDI thru on: incoming MIDI continues to the next plugin untouched. Off: this plugin consumes it.
+    const bool thru = apvts.getRawParameterValue("midiThru")->load() > 0.5f;
+
     const juce::ScopedTryLock sl(engineLock);
-    if (!sl.isLocked() || !romLoaded.load()) return;   // incoming MIDI passes through untouched
+    if (!sl.isLocked() || !romLoaded.load()) { if (!thru) midi.clear(); return; }
+
+    if (panicRequest.exchange(false)) engine.panic();
 
     engine.applyKeys(keyMask.load());
 
@@ -129,8 +135,9 @@ void TX81ZProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
         }
     }
 
-    // MIDI out: the incoming MIDI stays in the buffer (pass-through, so other synths can be chained after this one);
-    // complete SysEx messages produced by the firmware (bulk dumps) are added to it. Active sensing is dropped.
+    // MIDI out: with thru on, the incoming MIDI stays in the buffer (so other synths can be chained after this one);
+    // with thru off it is consumed. Complete SysEx messages produced by the firmware (bulk dumps) are added either way.
+    if (!thru) midi.clear();
     for (uint8_t b : engine.tx.midi_out) {
         if (b == 0xf0) { inSysex = true; sysexOut.clear(); }
         if (inSysex) {

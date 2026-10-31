@@ -57,6 +57,7 @@ public:
         tx.reset(false);
         runHeadless(9.0);
         rs.reset();
+        tx.midi_out.clear();   // drop anything the firmware transmitted while booting
     }
     // Wipes NVRAM and runs the firmware's own factory reset (power-on with both volume buttons, press INC
     // at "Test entry?"), then power-cycles with the new memory.
@@ -81,6 +82,20 @@ public:
 
     // ---- realtime ------------------------------------------------------------------------------
     void feedMidi(const uint8_t *d, int n) { for (int i = 0; i < n; i++) tx.midi_in(d[i]); }
+
+    // Panic: release every voice and zero pitch bend / mod wheel / sustain on all 16 channels.
+    void panic()
+    {
+        tx.key_off_all();
+        for (uint8_t c = 0; c < 16; c++) {
+            const uint8_t msgs[] = { uint8_t(0xB0 | c), 123, 0,      // all notes off
+                                     uint8_t(0xB0 | c), 120, 0,      // all sound off
+                                     uint8_t(0xB0 | c), 64, 0,       // sustain off
+                                     uint8_t(0xB0 | c), 1, 0,        // mod wheel to zero
+                                     uint8_t(0xE0 | c), 0, 0x40 };  // pitch bend to centre
+            feedMidi(msgs, (int)sizeof msgs);
+        }
+    }
 
     void render(float *l, float *r, int n)
     {
