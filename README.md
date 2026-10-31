@@ -1,31 +1,44 @@
-first draft of the R34DM3: 31 October 2026
+# T3X4Z
 
-T3X4Z is pronounced 'TEXAS'
+First README draft — 31 October 2026
 
-Texas is, phonetically, a trademark of Texas, USA.
+T3X4Z is pronounced “TEXAS.”
 
-T3X4Z is an emulation of the hardware inside a Yamaha TX81Z-class FM synthesizer (HD6303X CPU, YM2414 sound chip, LCD and mostly dissimilar front panel).
-It is an independent project and is not affiliated with, endorsed by, or licensed by Yamaha.
-“TX81Z” and “Yamaha” are trademarks of their owner and are used here only to describe compatibility.
+> Texas is, phonetically, a trademark of Texas, USA.
+
+## About
+
+T3X4Z emulates the hardware inside a Yamaha TX81Z-class FM synthesizer: an HD6303X CPU, a YM2414 sound chip, an LCD, and a mostly dissimilar front panel.
+
+This is an independent project and is not affiliated with, endorsed by, or licensed by Yamaha. “TX81Z” and “Yamaha” are trademarks of their owner and are used here only to describe compatibility.
+
 No firmware is included. The plugin runs the original TX81Z firmware, which is Yamaha’s copyrighted software and cannot be redistributed with this project.
 
 ![Project screenshot](t3x.jpg)
 
-You need to supply your own ROM image (for example, one you dumped from a unit you own).
+## Supplying the ROM
 
-Load the ROM from the plugin, set the TX81Z_ROM environment variable, or place it at ~/.config/TX81ZNative/rom.ic15.
-The plugin will remember the path of the rom, so if you move the rom the plugin won't start until you locate it again. (as of 31 october 2026.)
+You must supply your own ROM image—for example, one dumped from a unit you own.
 
-Credits: ymfm (BSD-3, Aaron Giles) and the memory map taken from MAME’s ymtx81z.cpp (BSD-3, AJR) both require their copyright notices and licence text to stay with the source. 
+Load the ROM from the plugin, set the `TX81Z_ROM` environment variable, or place it here:
 
-This is 100% organically vibecoded by Claude.ai to exacting specifications that were artisanally crafted by The Actual Culprit: Amateurtools DSP.
+    ~/.config/TX81ZNative/rom.ic15
 
-CREDITS:
-YMFM: https://github.com/aaronsgiles/ymfm/blob/main/LICENSE
-Claude: Vibe
-AmateurTools: Concept
+The plugin remembers the ROM path. If you move the ROM, the plugin will not start until you locate it again. (As of 31 October 2026.)
 
-Build and implementation credits include:
-JUCE: https://juce.com/legal/juce-7-license/
-VST3: https://steinbergmedia.github.io/vst3_dev_portal/pages/VST+3+Licensing/VST3+License.html
-CLAP: https://github.com/microsoft/CLAP/blob/main/LICENSE
+## Credits
+
+This project was vibecoded by Claude.ai to specifications crafted by The Actual Culprit: Amateurtools DSP.
+
+- YMFM: https://github.com/aaronsgiles/ymfm/blob/main/LICENSE — BSD-3, Aaron Giles
+- MAME memory map: `ymtx81z.cpp` — BSD-3, AJR
+- Claude: Vibe
+- AmateurTools: Concept
+
+YMFM and the MAME memory map are incorporated under BSD-3 terms. Their copyright notices and license text must remain with the source.
+
+## Build and implementation
+
+- JUCE 7 License: https://juce.com/legal/juce-7-license/
+- VST3 License: https://steinbergmedia.github.io/vst3_dev_portal/pages/VST+3+Licensing/VST3+License.html
+- CLAP License: https://github.com/microsoft/CLAP/blob/main/LICENSE
