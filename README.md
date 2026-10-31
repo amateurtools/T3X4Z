@@ -9,7 +9,7 @@ It is an independent project and is not affiliated with, endorsed by, or license
 “TX81Z” and “Yamaha” are trademarks of their owner and are used here only to describe compatibility.
 No firmware is included. The plugin runs the original TX81Z firmware, which is Yamaha’s copyrighted software and cannot be redistributed with this project.
 
-![Project screenshot](t3x4z.jpg)
+![Project screenshot](t3x.jpg)
 
 You need to supply your own ROM image (for example, one you dumped from a unit you own).
 
