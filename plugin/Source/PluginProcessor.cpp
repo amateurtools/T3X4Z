@@ -20,16 +20,39 @@ TX81ZProcessor::TX81ZProcessor()
     startupRomSearch();
 }
 
+juce::File TX81ZProcessor::romsDirectory()
+{
+    auto base = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory);
+   #if JUCE_MAC
+    base = base.getChildFile("Application Support");   // JUCE returns ~/Library on macOS
+   #endif
+    return base.getChildFile("AmateurToolsDSP").getChildFile("T3X4Z").getChildFile("roms");
+}
+
+static juce::File lastRomMarker() { return TX81ZProcessor::romsDirectory().getParentDirectory().getChildFile("last_rom.txt"); }
+
+void TX81ZProcessor::rememberRom(const juce::File &f)
+{
+    const auto dir = romsDirectory();
+    if (!dir.createDirectory().wasOk()) return;
+    juce::File stored = dir.getChildFile(f.getFileName());
+    if (f.getParentDirectory() != dir) {
+        if (stored.existsAsFile() && !stored.hasIdenticalContentTo(f)) stored = stored.getNonexistentSibling();   // different ROM, same name
+        if (!stored.existsAsFile() && !f.copyFileTo(stored)) return;
+    }
+    lastRomMarker().replaceWithText(stored.getFileName());
+}
+
 void TX81ZProcessor::startupRomSearch()
 {
-    // Look for a ROM next to the user's settings or via TX81Z_ROM; the user can always load one from the UI.
-    juce::StringArray candidates;
-    if (auto e = juce::SystemStats::getEnvironmentVariable("TX81Z_ROM", {}); e.isNotEmpty()) candidates.add(e);
-    candidates.add(juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("TX81ZNative/rom.ic15").getFullPathName());
-    for (auto &c : candidates) {
-        juce::File f(c);
-        if (f.existsAsFile()) { loadRomFile(f); if (hasRom()) break; }
-    }
+    // Order: TX81Z_ROM env var, the last ROM used, any ROM in the user's ROM folder, then the old pre-library location.
+    juce::Array<juce::File> candidates;
+    if (auto e = juce::SystemStats::getEnvironmentVariable("TX81Z_ROM", {}); e.isNotEmpty()) candidates.add(juce::File(e));
+    if (auto last = lastRomMarker().loadFileAsString().trim(); last.isNotEmpty()) candidates.add(romsDirectory().getChildFile(last));
+    for (auto &f : romsDirectory().findChildFiles(juce::File::findFiles, false, "*")) candidates.add(f);
+    candidates.add(juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("TX81ZNative/rom.ic15"));
+    for (auto &f : candidates)
+        if (f.existsAsFile() && f.getSize() == 65536) { loadRomFile(f); if (hasRom()) break; }
 }
 
 void TX81ZProcessor::snapshotLcd()
@@ -60,7 +83,9 @@ bool TX81ZProcessor::loadRomFile(const juce::File &f)
 {
     juce::MemoryBlock mb;
     if (!f.loadFileAsData(mb) || mb.getSize() != 65536) return false;
-    return installRom(mb, f.getFullPathName(), true);
+    if (!installRom(mb, f.getFullPathName(), true)) return false;
+    rememberRom(f);
+    return true;
 }
 
 void TX81ZProcessor::powerCycle()
@@ -179,11 +204,15 @@ void TX81ZProcessor::setStateInformation(const void *data, int size)
     if (auto xml = juce::XmlDocument::parse(xmlText)) apvts.replaceState(juce::ValueTree::fromXml(*xml));
 
     juce::File f(path);
+    if (!f.existsAsFile()) {   // project opened on another machine or OS: look for the same file name in our ROM folder
+        const auto name = path.replaceCharacter('\\', '/').fromLastOccurrenceOf("/", false, false);
+        if (name.isNotEmpty()) f = romsDirectory().getChildFile(name);
+    }
     juce::MemoryBlock rom;
     const juce::ScopedLock sl(engineLock);
     if (f.existsAsFile() && f.loadFileAsData(rom) && rom.getSize() == 65536) {
         engine.loadRom(rom.getData(), rom.getSize());
-        romPath = path; romLoaded = true;
+        romPath = f.getFullPathName(); romLoaded = true;
     }
     if (romLoaded) {
         std::memcpy(engine.nvramMut(), nvram.getData(), Engine::NVRAM_SIZE);

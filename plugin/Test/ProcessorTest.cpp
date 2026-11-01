@@ -66,6 +66,21 @@ int main(int argc, char **argv)
     juce::ScopedJuceInitialiser_GUI init;
     if (argc < 2) { std::printf("usage: ProcessorTest rom.ic15 [out.wav]\n"); return 2; }
 
+   #if JUCE_LINUX
+    // ROM library: isolate with a throw-away HOME, load a ROM, then check a brand-new instance finds it on its own
+    {
+        auto tmp = juce::File::getSpecialLocation(juce::File::tempDirectory).getChildFile("t3x4z_home_test");
+        tmp.deleteRecursively(); tmp.createDirectory();
+        setenv("HOME", tmp.getFullPathName().toRawUTF8(), 1); unsetenv("TX81Z_ROM");
+        std::printf("info: ROM folder on this OS = %s\n", TX81ZProcessor::romsDirectory().getFullPathName().toRawUTF8());
+        { TX81ZProcessor a; CHECK(!a.hasRom(), "fresh HOME: no ROM found automatically");
+          CHECK(a.loadRomFile(juce::File(argv[1])), "load ROM from an arbitrary location");
+          CHECK(TX81ZProcessor::romsDirectory().getChildFile(juce::File(argv[1]).getFileName()).existsAsFile(), "ROM was copied into the ROM folder"); }
+        { TX81ZProcessor b; CHECK(b.hasRom(), "new instance loads the ROM from the ROM folder without any clicking"); }
+        tmp.deleteRecursively();
+    }
+   #endif
+
     const double sr = 48000.0; const int block = 256;
     TX81ZProcessor p;
     p.setPlayConfigDetails(0, 2, sr, block);

@@ -36,6 +36,9 @@ public:
     void powerCycle();
     void factoryInit();
     bool hasRom() const { return romLoaded.load(); }
+    // Per-user ROM library: Linux ~/.config/AmateurToolsDSP/T3X4Z/roms, Windows %APPDATA%\\AmateurToolsDSP\\T3X4Z\\roms,
+    // macOS ~/Library/Application Support/AmateurToolsDSP/T3X4Z/roms. ROMs loaded from anywhere are copied here.
+    static juce::File romsDirectory();
     juce::String getRomPath() const { return romPath; }
     void setKeyMask(uint32_t m) { keyMask.store(m); }
     void panic() { panicRequest.store(true); }   // handled on the audio thread at the next block
@@ -51,6 +54,7 @@ public:
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
     void startupRomSearch();
+    void rememberRom(const juce::File &loadedFrom);   // copy into romsDirectory() and note it as last used
     void snapshotLcd();               // copy the firmware LCD for the editor (caller holds engineLock)
     bool installRom(const juce::MemoryBlock &mb, const juce::String &path, bool initIfNoNvram);
 
