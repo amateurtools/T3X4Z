@@ -1,6 +1,6 @@
 # T3X4Z
 
-version 0.2, almost perfect.
+version 0.3, almost perfect.
 
 T3X4Z is pronounced “TEXAS.”
 
@@ -24,11 +24,7 @@ You must supply your own ROM image—for example, one dumped from a unit you own
 
 Load the ROM from the plugin, set the `TX81Z_ROM` environment variable, or place it here:
 
-    ~/.config/TX81ZNative/rom.ic15
-
-The plugin remembers the ROM path. If you move the ROM, the plugin will not start until you locate it again. (As of 31 October 2026.)
-
-At present, it seems that the path is saved per instance, that is a to-do but it should be sorted out soon.
+    ~/.config/AmateurToolsDSP/TX81ZNative/roms/rom.ic15
 
 This project was vibecoded with Claude.ai to specifications crafted by The Actual Culprit: Amateurtools DSP.
 
